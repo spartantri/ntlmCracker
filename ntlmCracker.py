@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-
+#!/usr/bin/env python3
 import argparse
 import requests
 import sys
@@ -34,15 +33,21 @@ def process_input(input_data, num_threads=30):
 def main():
     parser = argparse.ArgumentParser(description="This script makes requests to ntlm.pw with optional threading.")
     parser.add_argument("hashFile", nargs="?", help="Path to the file containing ntlm hashes to process")
+    parser.add_argument("-i", "--singlehash", dest="singlehash", type=str, help="Hash to crack")
+    parser.add_argument("-s", dest="stdin", type=str, help="Hash to crack")
     parser.add_argument("--threads", type=int, default=30, help="Number of threads to use (default: 30)")
     args = parser.parse_args()
 
     if args.hashFile:
         with open(args.hashFile, 'r') as file:
             input_data = file.readlines()
-    else:
+    elif args.singlehash:
+        input_data = [args.singlehash]
+    elif args.stdin:
         input_data = sys.stdin.readlines()
-
+    else:
+        parser.print_help()
+        exit(1)
     process_input(input_data, args.threads)
 
 if __name__ == "__main__":
